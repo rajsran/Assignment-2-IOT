@@ -1,0 +1,113 @@
+{% extends "navbar.html" %}
+{% block content %}
+    <div class="content-section">
+        <form method="POST" action="" disabled="{{form.disabled}}">
+			{{ form.hidden_tag() }}
+            <fieldset class="form-group">
+                <legend class="border-bottom mb-4">Book now</legend>
+                
+                <div class="form-group">
+                    {{ form.carnumber.label(class_="form-control-label")  }}:
+                    {% if form.carnumber.errors %}
+						<input type="text" id="carnumber" name="carnumber" value="{{ form.carnumber.data }}" required class="form-control form-control-lg is-invalid form-control-static form-control-plaintext" readonly>
+						
+						<div class="invalid-feedback">
+                            {% for error in form.carnumber.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+						<input type="text" id="carnumber" name="carnumber" value="{{ form.carnumber.data }}" required class="form-control form-control-lg form-control-static form-control-plaintext" readonly>
+						
+				    {% endif %}
+                </div>
+                
+                <div class="form-group" readonly>
+                    {{ form.user.label(class_="form-control-label") }}
+                    {% if form.user.errors %}
+						<input type="text" id="user" name="user" value="{{ form.user.data }}" required class="form-control form-control-lg is-invalid form-control-static form-control-plaintext" readonly>
+						
+                        <div class="invalid-feedback">
+                            {% for error in form.user.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+						<input type="text" id="user" name="user" value="{{ form.user.data }}" required class="form-control form-control-lg form-control-static form-control-plaintext" readonly>
+						
+                    {% endif %}
+                </div>
+                
+                <div class="form-group date">
+                    {{ form.start_date.label(class_="form-control-label") }}
+                    {% if form.start_date.errors %}
+                        <input type="date" id="start_date" name="start_date" value="{{ form.start_date.data }}" required class="form-control form-control-lg is-invalid">
+						
+                        <div class="invalid-feedback">
+                            {% for error in form.start_date.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <input type="date" id="start_date" name="start_date" value="{{ form.start_date.data }}" required class="form-control form-control-lg" >
+						
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    {{ form.end_date.label(class_="form-control-label") }}
+                    {% if form.end_date.errors %}
+						<input type="date" id="end_date" name="end_date" value="{{ form.end_date.data }}" required class="form-control form-control-lg is-invalid">
+						
+                        <div class="invalid-feedback">
+                            {% for error in form.end_date.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+						<input type="date" id="end_date" name="end_date" value="{{ form.end_date.data }}" required class="form-control form-control-lg">
+						
+			        {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    {{ form.number_of_days.label(class_="form-control-label") }}
+                    {% if form.number_of_days.errors %}
+						<input type="number" id="numberof_days" default = "0"  name="number_of_days" value="{{ form.number_of_days.data }}" required class="form-control form-control-lg is-invalid form-control-static form-control-plaintext" readonly>
+						
+                        <div class="invalid-feedback">
+                            {% for error in form.number_of_days.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+						<input type="number" default = "0" id="numberof_days" name="number_of_days" value="{{ form.number_of_days.data }}" required class="form-control form-control-lg form-control-static form-control-plaintext" readonly>
+						
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    {{ form.cost.label(class_="form-control-label") }}
+                    {% if form.cost.errors %}
+                    
+                    <input type="text" id="cost" default = "0.0" name="cost" value="{{ form.cost.data }}" required class="form-control form-control-lg is-invalid form-control-static form-control-plaintext" readonly>
+						
+                        <div class="invalid-feedback">
+                            {% for error in form.cost.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+						 <input type="text" id="cost" default = "0.0" name="cost" value="{{ form.cost.data }}" required class="form-control form-control-lg form-control-static form-control-plaintext" readonly>
+					
+                    {% endif %}
+                </div>
+                
+            </fieldset>
+            
+            <div class="form-group">
+                {{ form.submit(class_="btn btn-outline-info") }}
+            </div>
+        </form>
+    </div>
+{% endblock content %}

@@ -1,0 +1,34 @@
+{% extends "navbar.html" %}
+{% block content %}
+    {% for booking in bookings %}
+        <article class="media content-section">
+          <div class="media-body" id="keep-left">
+            <h2 class="article-title" >{{ booking.booking_id }}</h2>
+            <div class="article-metadata">
+              <div class="mr-2" >CAR NUMBER:{{ booking.carnumber }}</div>
+              <div class="mr-2">START DATE: {{ booking.start_date }}</div>
+              <div class="mr-2">END DATE: {{ booking.end_date }}</div>
+            </div>
+            <div class="article-content">START LOCATION: {{ booking.start_location }}</div>
+            <div class="article-content">END LOCATION: {{ booking.end_location }}</div>
+            <br>
+            <br>
+            <div class="article-content">NUMBER OF DAYS: {{ booking.number_of_days }}</div>
+            <div class="article-content">TOTAL COST: {{ booking.cost }}AUD</div>
+            <br>
+             <button class="decision-buttons" type="button" data-toggle="collapse" data-target="#navbarToggle" aria-controls="navbarToggle" aria-expanded="false" aria-label="Toggle navigation">
+            <a href="{{ url_for('cancelBooking', booking_id=booking.booking_id, user=booking.user) }}">CANCEL BOOKING</a>
+        </button>
+        <button class="decision-buttons" type="button" data-toggle="collapse" data-target="#navbarToggle" aria-controls="navbarToggle" aria-expanded="false" aria-label="Toggle navigation">
+            <a href="{{ url_for('closeBooking', booking_id=booking.booking_id, user=booking.user) }}">CLOSE BOOKING</a>
+        </button>
+        <button class="decision-buttons" type="button" data-toggle="collapse" data-target="#navbarToggle" aria-controls="navbarToggle" aria-expanded="false" aria-label="Toggle navigation">
+            <a href="{{ url_for('reportIssue', booking_id=booking.booking_id, user=booking.user) }}">REPORT ISSUE</a>
+        </button>
+          </div>
+          <div id="keep-right">
+          <img class="article-img" src=" {{ url_for('capi.getCarForBooking', carnumber=booking.carnumber) }} " style="width:300px;height:300px;">
+          </div>
+        </article>
+    {% endfor %}
+{% endblock content %}

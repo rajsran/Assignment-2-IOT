@@ -1,0 +1,23 @@
+{% extends "navbar.html" %}
+{% block content %}
+    {% for car in cars %}
+        <article class="media content-section">
+          <div class="media-body" id="keep-left">
+            <h2 class="article-title" ><a href="{{ url_for('capi.getCarByName', carnumber = car.carnumber, user = user) }}">{{ car.model }}</a></h2>
+            <div class="article-metadata">
+              <div class="mr-2" >CAR NUMBER:{{ car.carnumber }}</div>
+              <div class="mr-2">COLOR: {{ car.color }}</div>
+            </div>
+            <p class="article-content">FEATURES: {{ car.feature }}</p>
+            <div class="article-content">COST: {{ car.cost_per_hour }}AUD/day</div>
+            <div class="article-content">LOCATION: {{ car.location }}</div>
+            <br>
+            <div class="article-content">SEATING CAPACITY: {{ car.seats }}</div>
+            <div class="article-content">TYPE: {{ car.body_type }}</div>
+          </div>
+          <div id="keep-right">
+          <img class="article-img" src="{{ car.photo }}" style="width:300px;height:300px;">
+          </div>
+        </article>
+    {% endfor %}
+{% endblock content %}
