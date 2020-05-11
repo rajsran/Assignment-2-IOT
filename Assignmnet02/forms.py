@@ -6,7 +6,9 @@ from datetime import date
 
 class FilterForm(FlaskForm):
     search = StringField('search')
-    available = RadioField('available', choices=[('available cars only','not booked or not under maintenance'),('all cars','all cars')])
+    available = RadioField('available', choices=[('available cars only','available cars only'),('all cars','all cars')])
+    cost_below = DecimalField('cost_below')
+    body = RadioField('body', choices=[('SUV','SUV'),('sedan','sedan'),('hatch back','hatch back')])
     submit = SubmitField('Apply Filters')
     
 class RegistrationForm(FlaskForm):
