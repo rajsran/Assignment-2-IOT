@@ -5,6 +5,7 @@ from sqlalchemy import or_, and_
 from flask_marshmallow import Marshmallow
 import os, requests, json, sqlite3
 from forms import RegistrationForm, LoginForm, BookingForm, FilterForm
+from flask_bcrypt import Bcrypt
 #from users import User
 from flask_api import api, db, User
 from car_api import capi,cdb,Car
@@ -37,6 +38,8 @@ cdb.init_app(app)
 app.register_blueprint(api)
 app.register_blueprint(capi)
 
+bcrypt = Bcrypt(app)
+
 
 @app.route("/", methods=['GET', 'POST'])
 def home():
@@ -44,7 +47,7 @@ def home():
     form = LoginForm()
     if form.validate_on_submit()==True:
         user = User.query.filter_by(email=form.email.data).first()
-        if user and form.password.data==user.password:
+        if user and bcrypt.check_password_hash(user.password, form.password.data):
             
             form = FilterForm()
             '''
@@ -66,8 +69,8 @@ def register():
     form = RegistrationForm()
     if form.validate_on_submit()==True:
         flash('Account created!', 'success')
-        
-        user =  User(form.username.data, form.email.data, form.password.data)
+        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+        user =  User(form.username.data, form.email.data, hashed_password)
         db.session.add(user)
         db.session.commit()
         return redirect(url_for('home'))
