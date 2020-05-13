@@ -1,15 +1,23 @@
-
+from __future__ import print_function
 from flask import Flask, render_template, url_for, flash, redirect, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import or_, and_
 from flask_marshmallow import Marshmallow
-import os, requests, json
+import os, requests, json, sqlite3
 from forms import RegistrationForm, LoginForm, BookingForm, FilterForm
 #from users import User
 from flask_api import api, db, User
 from car_api import capi,cdb,Car
 from booking_api import bapi, bdb, Booking
 from datetime import date, datetime
+
+from datetime import datetime
+from datetime import timedelta
+from googleapiclient.discovery import build
+from httplib2 import Http
+from oauth2client import file, client, tools
+
+
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '5791628bb0b13ce0c676dfde280ba245'
@@ -29,13 +37,25 @@ cdb.init_app(app)
 app.register_blueprint(api)
 app.register_blueprint(capi)
 
+
 @app.route("/", methods=['GET', 'POST'])
 def home():
+    
     form = LoginForm()
     if form.validate_on_submit()==True:
         user = User.query.filter_by(email=form.email.data).first()
         if user and form.password.data==user.password:
+            
             form = FilterForm()
+            '''
+            SCOPES = "https://www.googleapis.com/auth/calendar"
+            store = file.Storage("token.json")
+            creds = store.get()
+            if(not creds or creds.invalid):
+                flow = client.flow_from_clientsecrets("client_auth.json", SCOPES)
+                creds = tools.run_flow(flow, store)
+            service = build("calendar", "v3", http=Http())
+'''
             return redirect(url_for('main_page', form = form, user = user.username))
         else:
             flash('Login Unsuccessful. Please check email and password', 'danger')
@@ -46,6 +66,7 @@ def register():
     form = RegistrationForm()
     if form.validate_on_submit()==True:
         flash('Account created!', 'success')
+        
         user =  User(form.username.data, form.email.data, form.password.data)
         db.session.add(user)
         db.session.commit()
@@ -61,7 +82,7 @@ def booking():
     #form.end_date.data=date.today()
     form.number_of_days.data='0'
     form.cost.data='0'
-    
+    service = build("calendar", "v3", http=Http())
     
     if ((form.validate_on_submit()==True)):
         form.start_date.data=form.start_date.data
@@ -72,8 +93,12 @@ def booking():
         form.cost.data = form.setcost(form.number_of_days, price)
         flash('Booking confirmed!', 'success')
         bid = form.carnumber.data + datetime.strftime(form.start_date.data, '%m/%d/%Y')
-        booking =  Booking(booking_id = bid,carnumber = form.carnumber.data,user = form.user.data,start_date = form.start_date.data, end_date = form.end_date.data,start_location =  car.location, end_location = None, number_of_days = form.number_of_days.data,status=True, cost = form.cost.data)
+        booking =  Booking(booking_id = bid,carnumber = form.carnumber.data,user = form.user.data,start_date = form.start_date.data, end_date = form.end_date.data,start_location =  car.location, end_location = None, number_of_days = form.number_of_days.data,status=True, cost = form.cost.data, event_id = None)
         bdb.session.add(booking)
+        eid = booking.addToCalendar(service)
+        eid = eid.split("?eid=",1)
+        eveid = eid[1]
+        booking.event_id=eveid
         car.isAvailable = False
         cdb.session.commit()
         bdb.session.commit()
@@ -126,12 +151,14 @@ def main_page():
 
 @app.route("/cancelBooking", methods=['GET', 'POST'])
 def cancelBooking():
+    service = build("calendar", "v3", http=Http())
     booking = Booking.query.filter_by(booking_id=request.args['booking_id']).first()
-    booking.end_date = None
+    booking.end_date = booking.start_date
     booking.cost=0
     booking.number_of_days = 0
     booking.status = False
     booking.end_location = booking.start_location
+    booking.removeFromCalendar(service)
     bdb.session.commit()
     car = Car.query.filter_by(carnumber=booking.carnumber).first()
     car.isAvailable = True
@@ -142,11 +169,13 @@ def cancelBooking():
     
 @app.route("/closeBooking", methods=['GET', 'POST'])
 def closeBooking():
+    service = None
     booking = Booking.query.filter_by(booking_id=request.args['booking_id']).first()
     booking.end_date = date.today()
     booking.number_of_days = (booking.end_date-booking.start_date).days+1
     booking.end_location = "melbourne"
     booking.status = False
+    booking.removeFromCalendar(service)
     bdb.session.commit()
     car = Car.query.filter_by(carnumber=booking.carnumber).first()
     car.isAvailable = True
@@ -160,11 +189,13 @@ def closeBooking():
 
 @app.route("/reportIssue", methods=['GET', 'POST'])
 def reportIssue():
+    service = build("calendar", "v3", http=Http())
     booking = Booking.query.filter_by(booking_id=request.args['booking_id']).first()
     booking.end_date = date.today()
     booking.number_of_days = (booking.end_date-booking.start_date).days+1
     booking.end_location = "melbourne"
     booking.status = False
+    booking.removeFromCalendar(service)
     bdb.session.commit()
     car = Car.query.filter_by(carnumber=booking.carnumber).first()
     car.isAvailable = True
