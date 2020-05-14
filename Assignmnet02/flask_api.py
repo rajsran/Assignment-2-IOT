@@ -15,12 +15,14 @@ class User(db.Model):
     username = db.Column(db.String(20), primary_key = True)
     email = db.Column(db.String(20), nullable=False)
     password = db.Column(db.String(20), nullable=False)
+    dp = db.Column(db.String(100))
     # Username = db.Column(db.String(256), unique = True)
 
-    def __init__(self, username, email, password):
+    def __init__(self, username, email, password, dp):
         self.username = username
         self.email = email
         self.password = password
+        self.dp = dp
 
 class UserSchema(ma.Schema):
     # Reference: https://github.com/marshmallow-code/marshmallow/issues/377#issuecomment-261628415

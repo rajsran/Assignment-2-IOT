@@ -18,7 +18,11 @@ from googleapiclient.discovery import build
 from httplib2 import Http
 from oauth2client import file, client, tools
 
-
+import logging
+import os
+import cloudstorage as gcs
+from gcloud import storage
+from google.cloud import storage
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '5791628bb0b13ce0c676dfde280ba245'
@@ -70,7 +74,16 @@ def register():
     if form.validate_on_submit()==True:
         flash('Account created!', 'success')
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        user =  User(form.username.data, form.email.data, hashed_password)
+        client = storage.Client()
+        bucket = client.get_bucket('a2iot-carshare.appspot.com')
+        if (form.dp.data):
+            blob = bucket.blob('dp_'+form.username.data+'.jpg')
+            with open('/home/pi/Desktop/'+form.dp.data, "rb") as my_file:
+                blob.upload_from_file(my_file)
+            dp = "https://storage.cloud.google.com/a2iot-carshare.appspot.com/dp_"+form.username.data+".jpg"
+        else:
+            dp=None
+        user =  User(username = form.username.data, email = form.email.data, password = hashed_password, dp = dp)
         db.session.add(user)
         db.session.commit()
         return redirect(url_for('home'))
@@ -154,7 +167,7 @@ def main_page():
 
 @app.route("/cancelBooking", methods=['GET', 'POST'])
 def cancelBooking():
-    service = build("calendar", "v3", http=Http())
+    service = None
     booking = Booking.query.filter_by(booking_id=request.args['booking_id']).first()
     booking.end_date = booking.start_date
     booking.cost=0
@@ -194,9 +207,17 @@ def closeBooking():
 def reportIssue():
     service = build("calendar", "v3", http=Http())
     booking = Booking.query.filter_by(booking_id=request.args['booking_id']).first()
-    booking.end_date = date.today()
-    booking.number_of_days = (booking.end_date-booking.start_date).days+1
-    booking.end_location = "melbourne"
+    if (date.today()>booking.start_date):
+        booking.end_date = date.today()
+        booking.number_of_days = (booking.end_date-booking.start_date).days+1
+        booking.cost= car.cost_per_hour*booking.number_of_days
+        booking.end_location = "melbourne"
+    else:
+        booking.end_date = booking.start_date
+        booking.cost=0
+        booking.number_of_days = 0
+        booking.end_location = booking.start_location
+    
     booking.status = False
     booking.removeFromCalendar(service)
     bdb.session.commit()
@@ -205,7 +226,7 @@ def reportIssue():
     car.maintenance = True
     car.location = booking.end_location
     cdb.session.commit()
-    booking.cost= car.cost_per_hour*booking.number_of_days
+    
     bdb.session.commit()
     cars = Car.query.all()
     form = FilterForm()

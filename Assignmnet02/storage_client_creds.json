@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "a2iot-carshare",
+  "private_key_id": "5108f1629567f1ec13da965775da1ed52252167d",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDKHfL7L22h4yF3\n8I2cy2xKhV35Qw5NHQplVuI7IHacU29+HP6/yzGwjTwwl8xu4KgKyLN2/vXJsNqH\nTM0jYeODyfpXb5bDMyhmgDSsZC/ikV9osEjClmduTIkVRgiYkI4LzI9Ph8Jjyw4d\ndIvHJSSgq9tdjpzk2Rgkhmo++aDo1WM4uLvbynE3DNaa1r4BuMAFRNdV6rxz4nkB\nbCGN8rP8B73/KTCOFDM4ZkM0AgsuzMfx0LHwsnomGseDDbeK/x+zBbc7HOWy5quc\nIcpUaWs5Ti89+oYZb2YG6C9LodAY5Tf0gffNeKn6WE0V4XaVPQ4+yhwcOkMLew/8\nRE956QiHAgMBAAECggEAAjfkiCCj1bOHyGiE/WDdyuf+bIzX9gocDszh0pLo8MIZ\nRqtfZmmyA9InaqpRc/2v10Wo2ctmYjTSAssmgAo3TfJ93QJpOrI8i5RCDIq69dC+\nDDwArtYP9sEM5IVhjpJQZM1b3OkZPcqN2JsdwtOwouzP89prwWoNxRTbZKtaIN2o\n6LUtvTZr3/84RL552xl01JErE+/d4PSptWsXCv009ZMU0U4LalgEnJ219ZrVjaJR\nSYCR/MZRWsW+F3UB6H68pu1e+y4qJyp1N0AYDIvv7PaE1H1Qv5VTSr01vAY8tVpN\nyMkaMvpW8ieT99IECWg/8LfKx2aSk+GV8yOUwKBHsQKBgQDoDwL9xUkAf1pYL+vT\n386o+vg+kvugBqfUl7acLa4l5HRk9iuo0Y6WLl1Dm2qwd6k9evF1A0+pyAx+ea9N\nXh99DO9q+eahKRrn82g3mbWVqIC7Eigc4ZuMTiXNjzDXYUGcwvdXqaGUm+pCHRo4\nmRlDmFRxVwQRr1dj0lNfY/CT0QKBgQDe+CMhR+IbizYeVkuKuVifV5n9RCVhZHWF\nYo5QfxtTDfzExX1BjocNhw4q8HcyHkoc8kc8ctjkRApY+ystYutBraja6tqceH7K\nD/ftZgnUdlfdzL6S5QTCmcuSzX/D8NP+4qSTgzU/HkCWDwckR9hJt/VdnQw0Qll5\nS/RSazuk1wKBgQCo6DRPLkgimo/R3J+UijTL/lCuiyGnqvCB5yO9reoyHoUx75R7\nvnxAh+LOkNMpOw/udgxGFXDorXmanUuhzr6wsLebb+YUq+yvpBXZUoI/OnTotSCJ\nVRV5HHCbnHv6aQnu5mJOZmP73Ti3gqNRSu5+quPb03Bcxvme6LpSllXH4QKBgDVF\nf88xx3nhNtrkr0PDqMLZQTdbkrrEL7fgpjPhSnv7eYrhzF1fWjEHNYFY1oGo7vgf\ngpmUrvFKuFYuHFDJs3+LqC41smlz+Ib6bbfQi0Sxyah6hIXAJfUAnbzDUGVWIrBh\nIgUEcjJUXgX8LS6j468pPnxRS1spBwuN9B/E8wkdAoGBAKge3o7yH7ApjO5PaIrc\nWqqTQs/rdA4Y8ZNQiWskTCCbIO+3OdysO9S3f+T/8STudkMnlOUunYgZ1ojhSSke\nmxt+BwSrH143rVLCrXEeWc+y1T1gzsm/vEdG9hYXDxyVq8ng/iK4shSmo6veMOo9\nRZROMI63tBdndnLdfdf8VHOO\n-----END PRIVATE KEY-----\n",
+  "client_email": "for-dp@a2iot-carshare.iam.gserviceaccount.com",
+  "client_id": "113818937710867351518",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/for-dp%40a2iot-carshare.iam.gserviceaccount.com"
+}
