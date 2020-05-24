@@ -18,8 +18,20 @@ flask,imutils,face_recognition,pickle,cv2,socket,time,SQLAlchemy,MYSQLdb
 
 Implementation:
 The project is divided into two parts: Server side(Master PI) and client side(Agent PI)
-
 Server side is web based and contains web pages like Registration, authentication, booking a car etc
+Client side is console based and contains modules like facial recognition to unlock the car.
+Socket Programming is used to connect two raspberry Pis on different networks by using the port forwarding technique.
+
+Documentation:-
+It is done by making use of the Sphynx software.
+
+
+
+
+
+
+
+
 
 
 
