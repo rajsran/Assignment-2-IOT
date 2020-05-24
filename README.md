@@ -6,8 +6,11 @@ The main objective  of this assignment  to develop  an  automatic Car  ShareSyst
 Getting Started
 
 Prerequisites
+
 There are following prerequisites for this project 
+
 *python version should be higher than 3.4
+
 *we have used pyhton3.7
 raspberry pi 4 with raspbian installed 
 IDE for python used THONNY  
