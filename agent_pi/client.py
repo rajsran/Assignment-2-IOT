@@ -13,6 +13,7 @@ carnumber = "camry7"
 while(True):
     choice = input("Enter 1 for facial recognition or 2 for entering userid and password")
     if (choice=='1'):
+        msg = ""
         #code to encode the image
         ch = input("enter 1 to encode")
         if (ch=='1'):
@@ -81,14 +82,13 @@ while(True):
 
 # initialize the video stream and then allow the camera sensor to warm up
             print("[INFO] starting video stream...")
-#vs = VideoStream(src = 0).start()
-#time.sleep(2.0)
+
 
 # loop over frames from the video file stream
             i=0
             while i < 1:
     # grab the frame from the threaded video stream
-    #frame = vs.read()
+    
                 frame = cv2.imread('dataset//rdrd.jpg')
 
     # convert the input frame from BGR to RGB then resize it to have
@@ -136,16 +136,33 @@ while(True):
                 i = i+1
                 for name in names:
         # print to console, identified person
+                     msg = (name) + "," + carnumber
                      print("Person found: {}".format(name))
                      break
         # Set a flag to sleep the cam for fixed time
                      time.sleep(3.0)
+    
 
-# do a bit of cleanup
-#vs.stop()
-
-            
-            
+        if (msg!=""):
+            msgFromClient       = "1," + msg
+            bytesToSend         = str.encode(msgFromClient)
+            serverAddressPort   = ("218.214.235.136", 65000)
+            bufferSize          = 1024
+            print("connecting...")
+            # Create a UDP socket at client side
+            UDPClientSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
+            print("checking your credentials...")
+            # Send to server using created UDP socket
+            UDPClientSocket.sendto(bytesToSend, serverAddressPort)
+            print("details sent to server...")
+            print("waiting for response...")
+            msgFromServer = UDPClientSocket.recvfrom(bufferSize)
+            msg = "Message from Server {}".format(msgFromServer[0])
+            print("Response recieved:")
+            print(msg)
+            if (msg != "User not found"):
+                break
+                
     elif (choice=='2'):
         print("Enter your credentials to unlock this car")
         email = input("Enter email id:")
@@ -168,7 +185,7 @@ while(True):
         print("Response recieved:")
         print(msg)
         m = msgFromServer[0].decode("utf-8")
-        if (m!="Wrong credentials. please try again to unlock car"):
+        if (m!="Wrong credentials. please try again to unlock car" or m!="User not found"):
             break
     else:
         print("Invalid choice")
