@@ -3,8 +3,6 @@ Project Title Car Share Application
 AIM:-
 The main objective  of this assignment  to develop  an  automatic Car  ShareSystem.This system can be  used to book, find and unlock and lock a car. In addition, the customer can report some issues with the car to help the company to maintain the cars
 
-Getting Started
-
 Prerequisites
 
 There are following prerequisites for this project 
