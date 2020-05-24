@@ -25,7 +25,7 @@ Client side is console based and contains modules like facial recognition to unl
 Socket Programming is used to connect two raspberry Pis on different networks by using the port forwarding technique.
 
 Documentation:-
-It is done by making use of the Sphynx software.
+It is done by making use of the Sphinx software.
 
 
 
