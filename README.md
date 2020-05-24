@@ -18,6 +18,7 @@ Libraries Used:
 flask,imutils,face_recognition,pickle,cv2,socket,time,SQLAlchemy,MYSQLdb
 
 Implementation:
+
 The project is divided into two parts: Server side(Master PI) and client side(Agent PI)
 Server side is web based and contains web pages like Registration, authentication, booking a car etc
 Client side is console based and contains modules like facial recognition to unlock the car.
