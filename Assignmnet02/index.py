@@ -4,12 +4,13 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import or_, and_
 from flask_marshmallow import Marshmallow
 import os, requests, json, sqlite3
-from forms import RegistrationForm, LoginForm, BookingForm, FilterForm
+from forms import RegistrationForm, AdminRegistrationForm, AdminUpdateForm, LoginForm, BookingForm, FilterForm, SearchForm, AdminAddCarForm
 from flask_bcrypt import Bcrypt
 #from users import User
-from flask_api import api, db, User
+from flask_api import api, db, User, Admin, Engineer, Manager
 from car_api import capi,cdb,Car
 from booking_api import bapi, bdb, Booking
+from issue_api import iapi, idb, Issue
 from datetime import date, datetime
 
 from datetime import datetime
@@ -51,22 +52,21 @@ def home():
     form = LoginForm()
     if form.validate_on_submit()==True:
         user = User.query.filter_by(email=form.email.data).first()
+        admin = Admin.query.filter_by(EmployeeID=form.email.data).first()
         if user and bcrypt.check_password_hash(user.password, form.password.data):
             
             form = FilterForm()
-            '''
-            SCOPES = "https://www.googleapis.com/auth/calendar"
-            store = file.Storage("token.json")
-            creds = store.get()
-            if(not creds or creds.invalid):
-                flow = client.flow_from_clientsecrets("client_auth.json", SCOPES)
-                creds = tools.run_flow(flow, store)
-            service = build("calendar", "v3", http=Http())
-'''
             return redirect(url_for('main_page', form = form, user = user.username))
+    
+        elif admin and (admin.password == form.password.data):
+            
+            form = FilterForm()
+            return redirect(url_for('admin_main_page', form = form, user = admin.EmployeeID))
+        
         else:
             flash('Login Unsuccessful. Please check email and password', 'danger')
     return render_template('login.html', title='Login', form=form)
+
 
 @app.route("/register", methods=['GET', 'POST'])
 def register():
@@ -74,9 +74,9 @@ def register():
     if form.validate_on_submit()==True:
         flash('Account created!', 'success')
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        client = storage.Client()
-        bucket = client.get_bucket('a2iot-carshare.appspot.com')
         if (form.dp.data):
+            client = storage.Client()
+            bucket = client.get_bucket('a2iot-carshare.appspot.com')
             blob = bucket.blob('dp_'+form.username.data+'.jpg')
             with open('/home/pi/Desktop/'+form.dp.data, "rb") as my_file:
                 blob.upload_from_file(my_file)
@@ -94,8 +94,6 @@ def booking():
     form = BookingForm()
     form.carnumber.data = request.args['carnumber']
     form.user.data = request.args['user']
-    #form.start_date.data=date.today()
-    #form.end_date.data=date.today()
     form.number_of_days.data='0'
     form.cost.data='0'
     service = build("calendar", "v3", http=Http())
@@ -223,7 +221,7 @@ def reportIssue():
     bdb.session.commit()
     car = Car.query.filter_by(carnumber=booking.carnumber).first()
     car.isAvailable = True
-    car.maintenance = True
+    car.maintenance = 1
     car.location = booking.end_location
     cdb.session.commit()
     
@@ -243,6 +241,137 @@ def curr_bookings():
     bookings = Booking.query.filter(Booking.user==request.args['user'],Booking.status==True)
     
     return render_template('currbookings.html', bookings=bookings, user = request.args['user'])
+
+
+@app.route("/admin_main_page", methods=['GET', 'POST'])
+def admin_main_page():
+    form = FilterForm()
+    cars = Car.query.filter(Car.isArhieved==False)
+    if request.method=='POST':
+        
+        if (form.search.data==None or form.search.data=='' or form.search.data==[]):
+            cars1 = Car.query.filter(Car.isArhieved==False)
+        else:
+            cars1 = Car.query.filter(or_(Car.carnumber==form.search.data, Car.model==form.search.data))
+        
+        if (form.available.data=="available cars only"):
+            cars2 = Car.query.filter(and_(Car.isAvailable==True, Car.maintenance==False))
+        elif (form.available.data=="all cars"):
+            cars2 = Car.query.filter(Car.isArhieved==False)
+        else:
+            cars2 = Car.query.filter(Car.isArhieved==False)
+
+        
+        if (form.cost_below.data==None or form.cost_below.data=='' or form.cost_below.data==[]):
+            cars3 = Car.query.filter(Car.isArhieved==False)
+        else:
+            cars3 = Car.query.filter(and_(Car.cost_per_hour<=form.cost_below.data, Car.isArhieved==False))
+        
+        if (form.body.data==None or form.body.data=='' or form.body.data==[]):
+            cars4= Car.query.filter(Car.isArhieved==False)
+        else:
+            if (form.body.data=="SUV"):
+                cars4 = Car.query.filter(and_(Car.body_type=="suv",Car.isArhieved==False))
+            elif (form.body.data=="sedan"):
+                cars4 = Car.query.filter(and_(Car.body_type=="sedan", Car.isArhieved==False))
+            else:
+                cars4 = Car.query.filter(and_(Car.body_type=="hatch", Car.isArhieved==False))
+         
+        print(list(set(cars1) & set(cars2) & set(cars3) & set(cars4)))
+        cars = list(set(cars1) & set(cars2) & set(cars3) & set(cars4))
+        if (cars is None or cars==None or len(cars)==0):
+            flash('No results found, please re-edit filters!', 'danger')
+            cars = Car.query.filter(Car.isArhieved==False)
+        return render_template('admin_main.html', form = form, cars=cars, user = request.args['user'])
+    return render_template('admin_main.html', form = form, cars=cars, user = request.args['user'])
+
+@app.route("/admin_booking_history", methods=['GET', 'POST'])
+def admin_booking_history():
+    form = SearchForm()
+    bookings = Booking.query.all()
+    if request.method=='POST':
+        bookings = Booking.query.filter(or_(Booking.user==form.search.data,Booking.carnumber==form.search.data))
+        return render_template('admin_bookings.html', form=form, bookings=bookings, user = request.args['user'])
+    return render_template('admin_bookings.html', form=form, bookings=bookings, user = request.args['user'])
+
+@app.route("/admin_delete_car", methods=['GET', 'POST'])
+def admin_delete_car():
+    car = Car.query.filter(Car.carnumber==request.args['carnumber']).first()
+    car.isArhieved = True
+    car.isAvailable = False
+    cdb.session.commit()
+    return redirect(url_for('admin_main_page',  user = request.args['user']))
+
+@app.route("/admin_report", methods=['GET', 'POST'])
+def admin_report():
+    issue = Issue(reportID=request.args['carnumber']+'-'+str(date.today()), reportedOn=date.today(), reportedBy=request.args['user'].split(' ',2)[1], solvedBy=None, isOpen=True, closedOn=None, carnumber=request.args['carnumber'])
+    idb.session.add(issue)
+    idb.session.commit()
+    car = Car.query.filter(Car.carnumber==request.args['carnumber']).first()
+    car.maintenance = 2;
+    cdb.session.commit();
+    return redirect(url_for('admin_main_page', user = request.args['user']))
+
+@app.route("/admin_add_car", methods=['GET', 'POST'])
+def admin_add_car():
+    form = AdminAddCarForm()
+    if form.validate_on_submit()==True:
+        car = Car(carnumber = form.carnumber.data, model = form.model.data, color = form.color.data, feature = form.feature.data, body_type = form.body_type.data, seats = 0, location = form.location.data, cost_per_hour = form.cost_per_hour.data, photo = form.photo.data, isAvailable=True, isArhieved=False, maintenance=0)
+        if(form.body_type.data=='SUV'):
+            car.seats = 7
+        else:
+            car.seats = 5
+        cdb.session.add(car)
+        cdb.session.commit()
+        flash('car added!', 'success')
+        return redirect(url_for('admin_main_page', form = form, user = request.args['user']))
+    return render_template('admin_add_car.html', title='add product', form=form, user = request.args['user'])
+
+@app.route("/admin_add_staff", methods=['GET', 'POST'])
+def admin_add_staff():
+    form = AdminRegistrationForm()
+    if form.validate_on_submit()==True:
+        flash('Account created!', 'success')
+        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+        if (form.staffType.data=='Admin'):
+            admin = Admin(EmployeeID=form.EmployeeID.data, password = hashed_password, salary = form.salary.data)
+            db.session.add(admin);
+            db.session.commit();
+        elif (form.staffType.data=='Engineer'):
+            engineer = Engineer(EmployeeID=form.EmployeeID.data, password = hashed_password, salary = form.salary.data)
+            db.session.add(engineer);
+            db.session.commit();
+        else:
+            manager = Manager(EmployeeID=form.EmployeeID.data, password = hashed_password, salary = form.salary.data)
+            db.session.add(manager);
+            db.session.commit();
+        return redirect(url_for('admin_main_page', form = form, user = request.args['user']))
+    return render_template('admin_add_staff.html', title='Register', form=form, user = request.args['user'])
+
+@app.route("/admin_view_users", methods=['GET', 'POST'])
+def admin_view_users():
+    form = SearchForm()
+    users = User.query.all()
+    if request.method=='POST':
+        
+        if (form.search.data):
+            users = User.query.filter(or_(User.username==form.search.data, User.email==form.search.data))
+        return render_template('admin_view_users.html', form = form, users=users, user = request.args['user'])
+    return render_template('admin_view_users.html', form = form, users=users, user = request.args['user'])
+
+@app.route("/admin_update_user", methods=['GET', 'POST'])
+def admin_update_user():
+    form = AdminUpdateForm()
+    user = User.query.filter(User.username==request.args['username']).first()
+    form.oldEmail.data = user.email
+    form.username.data = user.username
+    if request.method=='POST':
+        if (form.email.data):
+            user.email = form.email.data
+        db.session.commit()
+        flash('Account updated!', 'success')
+        return redirect(url_for('admin_view_users', form = form, user = request.args['user']))
+    return render_template('admin_update_user.html', form = form, username=request.args['username'] , user = request.args['user'])
 
 
 if (__name__) == '__main__':

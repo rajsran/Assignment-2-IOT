@@ -20,14 +20,16 @@
           <div class="collapse navbar-collapse" id="navbarToggle">
             <!-- Navbar Right Side -->
             <div class="navbar-nav">
-              <a class="nav-item nav-link" href="{{ url_for('main_page', form=form, user = user) }}">Home</a>
-              <a class="nav-item nav-link" href="{{ url_for('prev_bookings',form=form,  user = user) }}">View Previous bookings</a>
-              <a class="nav-item nav-link" href="{{ url_for('curr_bookings', form=form, user = user) }}">Manage current bookings</a>
+              <a class="nav-item nav-link" href="{{ url_for('admin_main_page', form=form, user = user) }}">Home</a>
+              <a class="nav-item nav-link" href="{{ url_for('admin_booking_history',  user = user) }}">View bookings history</a>
+              <a class="nav-item nav-link" href="{{ url_for('admin_add_car', form=form, user = user) }}">Add a new car</a>
+              <a class="nav-item nav-link" href="{{ url_for('admin_add_staff', form=form, user = user) }}">Add new staff</a>
+              <a class="nav-item nav-link" href="{{ url_for('admin_view_users', form=form, user = user) }}">View Users</a>
               <a class="nav-item nav-link" href="{{ url_for('home') }}">Logout</a>
             </div>
           </div>
           
-          <div class="navbar-brand mr-4">Welcome, {{ user}} </div>
+          <div class="navbar-brand mr-4">Welcome, admin {{ user}} </div>
         </div>
       </nav>
     </header>

@@ -86,3 +86,99 @@ def personDelete(username):
     db.session.commit()
 
     return userSchema.jsonify(user)
+
+
+
+class Admin(db.Model):
+    __tablename__ = "Admin"
+    EmployeeID = db.Column(db.String(20), primary_key = True)
+    password = db.Column(db.String(50), nullable=False)
+    salary = db.Column(db.Float)
+
+    def __init__(self, EmployeeID, password, salary):
+        self.EmployeeID = EmployeeID
+        self.password = password
+        self.salary = salary
+
+class AdminSchema(ma.Schema):
+    # Reference: https://github.com/marshmallow-code/marshmallow/issues/377#issuecomment-261628415
+    def __init__(self, strict = True, **kwargs):
+        super().__init__(strict = strict, **kwargs)
+    
+    class Meta:
+        # Fields to expose.
+        fields = ("EmployeeID", "password", "salary")
+
+adminSchema = AdminSchema()
+adminsSchema = AdminSchema(many = True)
+
+# Endpoint to show all people.
+@api.route("/admin", methods = ["GET"])
+def getAdmin():
+    admins = Admin.query.all()
+    result = adminsSchema.dump(admins)
+
+    return jsonify(result.data)
+
+class Engineer(db.Model):
+    __tablename__ = "Engineer"
+    EmployeeID = db.Column(db.String(20), primary_key = True)
+    password = db.Column(db.String(50), nullable=False)
+    salary = db.Column(db.Float)
+
+    def __init__(self, EmployeeID, password, salary):
+        self.EmployeeID = EmployeeID
+        self.password = password
+        self.salary = salary
+
+class EngineerSchema(ma.Schema):
+    # Reference: https://github.com/marshmallow-code/marshmallow/issues/377#issuecomment-261628415
+    def __init__(self, strict = True, **kwargs):
+        super().__init__(strict = strict, **kwargs)
+    
+    class Meta:
+        # Fields to expose.
+        fields = ("EmployeeID", "password", "salary")
+
+engineerSchema = EngineerSchema()
+engineersSchema = EngineerSchema(many = True)
+
+# Endpoint to show all people.
+@api.route("/engineer", methods = ["GET"])
+def getEngineer():
+    engineers = Engineer.query.all()
+    result = engineersSchema.dump(engineers)
+
+    return jsonify(result.data)
+
+class Manager(db.Model):
+    __tablename__ = "Manager"
+    EmployeeID = db.Column(db.String(20), primary_key = True)
+    password = db.Column(db.String(50), nullable=False)
+    salary = db.Column(db.Float)
+
+    def __init__(self, EmployeeID, password, salary):
+        self.EmployeeID = EmployeeID
+        self.password = password
+        self.salary = salary
+
+class ManagerSchema(ma.Schema):
+    # Reference: https://github.com/marshmallow-code/marshmallow/issues/377#issuecomment-261628415
+    def __init__(self, strict = True, **kwargs):
+        super().__init__(strict = strict, **kwargs)
+    
+    class Meta:
+        # Fields to expose.
+        fields = ("EmployeeID", "password", "salary")
+
+managerSchema = ManagerSchema()
+managersSchema = ManagerSchema(many = True)
+
+# Endpoint to show all people.
+@api.route("/manager", methods = ["GET"])
+def getManager():
+    managers = Manager.query.all()
+    result = managersSchema.dump(managers)
+
+    return jsonify(result.data)
+

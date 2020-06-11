@@ -56,19 +56,74 @@ UDPServerSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
 # Bind to address and ip
 UDPServerSocket.bind((localIP, localPort))
 print("UDP server up and listening")
+f=0
+b=0
+bytesAddressPair = UDPServerSocket.recvfrom(bufferSize)
+message = bytesAddressPair[0]
+clientMsg = "Message from Client:{}".format(message)
+print(clientMsg)
+msg = message.decode("utf-8")
+details = msg.split(',',2)
+if (details[0]=="1"):
+    creds = False
+    username = details[1]
+    carnumber = details[2]
+    with DatabaseUtils() as db:
+        for user in db.getUser():
+            if (user[0]==username):
+                f=1
+    
+    if (f==1):
+        msgFromServer       = "Photo verified.Welcome, "+ username+"."
+        with DatabaseUtils() as db:
+            for booking in db.getBooking():
+                if (booking[1]==carnumber and booking[2]==username and booking[3]==date.today() ):
+                    if (booking[4]==None):
+                        b=1
+                    else:
+                        b=2
+                    neededBooking = booking[0]
+                    
+        if (b==1):
+            msgFromServer += "Your car has been unlocked" 
+            bytesToSend         = str.encode(msgFromServer)
+            print(msgFromServer)
+            address = bytesAddressPair[1]
+            UDPServerSocket.sendto(bytesToSend, address)
+            
+        elif (b==2):
+            msgFromServer += "You have already closed this booking.Please make another booking for this car first" 
+            bytesToSend         = str.encode(msgFromServer)
+            print(msgFromServer)
+            address = bytesAddressPair[1]
+            UDPServerSocket.sendto(bytesToSend, address)
+
+        else:
+            msgFromServer += "You have not made a booking for this car today. Please make a booking first." 
+            bytesToSend         = str.encode(msgFromServer)
+            print(msgFromServer)
+            address = bytesAddressPair[1]
+            UDPServerSocket.sendto(bytesToSend, address)
+
+    else:
+        msgFromServer       = "User not found"
+        bytesToSend         = str.encode(msgFromServer)
+        print(msgFromServer)
+        address = bytesAddressPair[1]
+        UDPServerSocket.sendto(bytesToSend, address)
+        
+
+else:
+    creds= True
+
 
 # Listen for incoming datagrams
-while(True):
-
-    bytesAddressPair = UDPServerSocket.recvfrom(bufferSize)
-    message = bytesAddressPair[0]
+while(creds):
+    print("Checking credentials")
     clientMsg = "Message from Client:{}".format(message)
     print(clientMsg)
     f=0
     b=0
-    
-    msg = message.decode("utf-8")
-    details = msg.split(',',2)
     email = details[0]
     password = details[1]
     carnumber = details[2]
@@ -83,12 +138,22 @@ while(True):
         msgFromServer       = "Correct credentials.Welcome, "+ username+"."
         with DatabaseUtils() as db:
             for booking in db.getBooking():
-                if (booking[1]==carnumber and booking[2]==username and booking[3]==date.today() ):
-                    b=1
+                if (booking[1]==carnumber and booking[2]==username and booking[3]==date.today()):
+                    if (booking[4]==None):
+                        b=1
+                    else:
+                        b=2
                     neededBooking = booking[0]
                     
         if (b==1):
             msgFromServer += "Your car has been unlocked" 
+            bytesToSend         = str.encode(msgFromServer)
+            print(msgFromServer)
+            address = bytesAddressPair[1]
+            UDPServerSocket.sendto(bytesToSend, address)
+            break
+        elif (b==2):
+            msgFromServer += "You have already closed this booking.Please make another booking for this car first" 
             bytesToSend         = str.encode(msgFromServer)
             print(msgFromServer)
             address = bytesAddressPair[1]

@@ -1,0 +1,30 @@
+{% extends "navbar.html" %}
+{% block content %}
+    <form method="POST" >
+			{{ form.hidden_tag() }}
+            <fieldset class="form-group">
+                <legend class="border-bottom mb-4">Filters</legend>
+                
+                <div class="form-group">
+                    {{ form.search.label(class_="form-control-label col-form-label")  }}:
+                    {{form.search(class = "form-control form-control-md")}}
+                </div>
+                
+                
+                </fieldset>
+            
+            <div class="form-group">
+                {{ form.submit(class_="btn btn-outline-info") }}
+            </div>
+        </form>
+                
+    {% for u in users %}
+        <article class="media content-section">
+          <div class="media-body" id="keep-left">
+            <h2 class="article-title" ><a href="{{ url_for('admin_update_user', username= u.username, user = user) }}">{{ u.username }}</a></h2>
+            <div class="article-metadata">
+              <div class="mr-2">Email: {{ u.email }}</div>
+            </div>
+        </article>
+    {% endfor %}
+{% endblock content %}

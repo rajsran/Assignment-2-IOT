@@ -1,0 +1,29 @@
+{% extends "navbar.html" %}
+
+{% block content %}
+<form method="POST" >
+			{{ form.hidden_tag() }}
+            <fieldset class="form-group">
+                <legend class="border-bottom mb-4">Update</legend>
+                
+                <div class="form-group">
+                    {{ form.username.label(class_="form-control-label col-form-label")  }}:
+                    {{form.username(class = "form-control form-control-md")}}
+                </div>
+                
+                <div class="form-group">
+                    {{ form.email.label(class_="form-control-label col-form-label")  }}:
+                    {{form.email(class = "form-control form-control-md")}}
+                </div>
+                <br>
+                <br>
+                </fieldset>
+            
+            <div class="form-group">
+                {{ form.submit(class_="btn btn-outline-info") }}
+            </div>
+        </form>
+                
+
+                        
+{% endblock content %}

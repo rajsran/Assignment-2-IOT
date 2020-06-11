@@ -11,6 +11,11 @@ class FilterForm(FlaskForm):
     body = RadioField('body', choices=[('SUV','SUV'),('sedan','sedan'),('hatch back','hatch back')])
     submit = SubmitField('Apply Filters')
     
+class SearchForm(FlaskForm):
+    search = StringField('search')
+    submit = SubmitField('Search')
+    
+    
 class RegistrationForm(FlaskForm):
     username = StringField('username',
                            validators=[DataRequired(), Length(min=2, max=20)])
@@ -36,7 +41,7 @@ class RegistrationForm(FlaskForm):
 
 class LoginForm(FlaskForm):
     email = StringField('email',
-                        validators=[DataRequired(), Email()])
+                        validators=[DataRequired()])
     password = PasswordField('password', validators=[DataRequired()])
     submit = SubmitField('login')
     
@@ -72,3 +77,45 @@ class BookingForm(FlaskForm):
     def validate_end_date(self, end_date):
         if ((end_date.data<self.start_date.data)):
             raise ValidationError('Booking should end after start date.')
+        
+class updateForm(FlaskForm):
+    newprice = DecimalField('newprice')
+    newdesc = StringField('newdesc')
+    submit = SubmitField('update')
+    
+    
+class AdminAddCarForm(FlaskForm):
+    carnumber = StringField('carnumber',validators=[DataRequired()])
+    model = StringField('model',validators=[DataRequired()])
+    color = StringField('color',validators=[DataRequired()])
+    feature = StringField('features',validators=[DataRequired()])
+    body_type = StringField('body_type',validators=[DataRequired()])
+    seats = IntegerField('seats')
+    location = StringField('location',validators=[DataRequired()])
+    cost_per_hour = DecimalField('cost_per_hour', validators=[DataRequired()])
+    photo = StringField('photo',validators=[DataRequired()])
+    submit = SubmitField('add')
+    
+class AdminRegistrationForm(FlaskForm):
+    staffType = StringField('staffType',
+                           validators=[DataRequired()])
+    EmployeeID = StringField('EmployeeID',
+                        validators=[DataRequired()])
+    password = PasswordField('password', validators=[DataRequired()])
+    confirm_password = PasswordField('confirm Password',
+                                     validators=[DataRequired(), EqualTo('password')])
+    salary = DecimalField('salary', validators=[DataRequired()])
+    submit = SubmitField('sign Up')
+
+    def validate_username(self, username):
+        return True
+
+    def validate_email(self, email):
+        return True
+    
+class AdminUpdateForm(FlaskForm):
+    username = StringField('New username')
+    oldEmail = StringField('Old email')
+    email = StringField('New email')
+    submit = SubmitField('Update')
+    

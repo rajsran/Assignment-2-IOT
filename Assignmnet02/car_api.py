@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 import os, requests, json
 from flask import current_app as app
-
+from forms import updateForm
 capi = Blueprint("capi", __name__)
 
 cdb = SQLAlchemy()
@@ -21,9 +21,10 @@ class Car(cdb.Model):
     location = cdb.Column(cdb.String(200), nullable=False)
     cost_per_hour = cdb.Column(cdb.Float(), nullable=False)
     isAvailable = cdb.Column(cdb.Boolean(), nullable = False)
-    maintenance = cdb.Column(cdb.Boolean(), default=False)
+    maintenance = cdb.Column(cdb.Integer(), default=0)
+    isArhieved = cdb.Column(cdb.Boolean(), default=False)
     photo = cdb.Column(cdb.String(20000), nullable=False)
-
+    
 class CarSchema(cma.Schema):
     # Reference: https://github.com/marshmallow-code/marshmallow/issues/377#issuecomment-261628415
     def __init__(self, strict = True, **kwargs):
@@ -31,7 +32,7 @@ class CarSchema(cma.Schema):
     
     class Meta:
         # Fields to expose.
-        fields = ("carnumber", "model", "color", "features", "body_type", "seats", "location", "cost", "img")
+        fields = ("carnumber", "model", "color", "features", "body_type", "seats", "location", "cost", "img", "isArhieved")
 
 carSchema = CarSchema()
 carsSchema = CarSchema(many = True)
@@ -58,8 +59,25 @@ def changeAvailability(self,carnumber):
 # Endpoint to show a cars by carnumber.
 @capi.route("/car/<carnumber>", methods = ["GET"])
 def getCarByName(carnumber):
+    
     car = Car.query.filter_by(carnumber=carnumber).first()
     return render_template('detail.html', car = car, user = request.args['user'], disabled=False)
+
+@capi.route("/admin_car/<carnumber>", methods = ["GET", "POST"])
+def admin_getCarByName(carnumber):
+    car = Car.query.filter_by(carnumber=carnumber).first()
+    form = updateForm()
+    if (request.method=='POST'):
+        if form.newprice.data:
+            car.cost_per_hour = form.newprice.data
+            cdb.session.commit()
+        if form.newdesc.data:
+            car.features = form.newdesc.data
+            cdb.session.commit()
+        flash('product updated!', 'success')
+        return render_template('admin_detail.html', form=form, car = car, user = request.args['user'], disabled=False)
+    return render_template('admin_detail.html', form=form, car = car, user = request.args['user'], disabled=False)
+
 
 @capi.route("/carForBooking/<carnumber>", methods = ["GET"])
 def getCarForBooking(carnumber):
