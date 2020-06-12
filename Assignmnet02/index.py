@@ -59,6 +59,7 @@ def home():
         user = User.query.filter_by(email=form.email.data).first()
         admin = Admin.query.filter_by(EmployeeID=form.email.data).first()
         engineer = Engineer.query.filter_by(EmployeeID=form.email.data).first()
+        manager = Manager.query.filter_by(EmployeeID=form.email.data).first()
         if user and bcrypt.check_password_hash(user.password, form.password.data):
             
             form = FilterForm()
@@ -71,6 +72,9 @@ def home():
         
         elif engineer and bcrypt.check_password_hash(engineer.password, form.password.data):
             return redirect(url_for('engineer_main_page', user = engineer.EmployeeID))
+       
+        elif manager and bcrypt.check_password_hash(manager.password, form.password.data):
+            return redirect(url_for('manager_main_page', user = manager.EmployeeID))
         
         else:
             flash('Login Unsuccessful. Please check email and password', 'danger')
@@ -416,8 +420,31 @@ def engineer_show_location():
 
 @app.route("/manager_main_page", methods=['GET', 'POST'])
 def manager_main_page():
-    
-    return render_template('manager_main_page.html')
+    cars = Car.query.all()
+    countOfBookings = []
+    for car in cars:
+        bookings = Booking.query.filter(Booking.carnumber==car.carnumber)
+        c=0
+        for booking in bookings:
+            c+=1
+        countOfBookings.append(c)
+    countOfIssues = []
+    for car in cars:
+        issues = Issue.query.filter(Issue.carnumber==car.carnumber)
+        c=0
+        for issue in issues:
+            c+=1
+        countOfIssues.append(c)
+    users = User.query.all()
+    countOfBookingsPerUser = []
+    for user in users:
+        bookings = Booking.query.filter(Booking.user == user.username)
+        c=0
+        for booking in bookings:
+            c+=1
+        countOfBookingsPerUser.append(c)
+    return render_template('manager_main_page.html', countOfBookingsPerUser =countOfBookingsPerUser, users=users, cars = cars,countOfIssues =countOfIssues , countOfBookings =countOfBookings, user = request.args['user'])
+
 
 if (__name__) == '__main__':
     app.run(debug=True)
