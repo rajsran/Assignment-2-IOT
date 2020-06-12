@@ -12,6 +12,7 @@ from car_api import capi,cdb,Car
 from booking_api import bapi, bdb, Booking
 from issue_api import iapi, idb, Issue
 from datetime import date, datetime
+import googlemaps
 
 from datetime import datetime
 from datetime import timedelta
@@ -24,6 +25,10 @@ import os
 import cloudstorage as gcs
 from gcloud import storage
 from google.cloud import storage
+
+from pushbullet import Pushbullet
+
+pb = Pushbullet('o.V6LChFjuMwBnctjCgBDCPQaSm67dJxTc')
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '5791628bb0b13ce0c676dfde280ba245'
@@ -53,6 +58,7 @@ def home():
     if form.validate_on_submit()==True:
         user = User.query.filter_by(email=form.email.data).first()
         admin = Admin.query.filter_by(EmployeeID=form.email.data).first()
+        engineer = Engineer.query.filter_by(EmployeeID=form.email.data).first()
         if user and bcrypt.check_password_hash(user.password, form.password.data):
             
             form = FilterForm()
@@ -62,6 +68,9 @@ def home():
             
             form = FilterForm()
             return redirect(url_for('admin_main_page', form = form, user = admin.EmployeeID))
+        
+        elif engineer and bcrypt.check_password_hash(engineer.password, form.password.data):
+            return redirect(url_for('engineer_main_page', user = engineer.EmployeeID))
         
         else:
             flash('Login Unsuccessful. Please check email and password', 'danger')
@@ -304,12 +313,17 @@ def admin_delete_car():
 
 @app.route("/admin_report", methods=['GET', 'POST'])
 def admin_report():
-    issue = Issue(reportID=request.args['carnumber']+'-'+str(date.today()), reportedOn=date.today(), reportedBy=request.args['user'].split(' ',2)[1], solvedBy=None, isOpen=True, closedOn=None, carnumber=request.args['carnumber'])
+    issue = Issue(reportID=request.args['carnumber']+'-'+str(date.today()), reportedOn=date.today(), reportedBy=request.args['user'], solvedBy=None, isOpen=True, closedOn=None, carnumber=request.args['carnumber'])
     idb.session.add(issue)
     idb.session.commit()
     car = Car.query.filter(Car.carnumber==request.args['carnumber']).first()
     car.maintenance = 2;
     cdb.session.commit();
+    #os.system('/home/pi/Desktop/Assignmnet02/pushbullet.sh"A car has been reported. Please login to check."')
+    push = pb.push_note("New Job added!", "A car has been reported. Please login to check.")
+    my_channel = pb.channels[0]
+    push = my_channel.push_note("New Job added!", "A car has been reported. Please login to check.")
+    flash('Issue reported to engineers', 'success')
     return redirect(url_for('admin_main_page', user = request.args['user']))
 
 @app.route("/admin_add_car", methods=['GET', 'POST'])
@@ -341,6 +355,7 @@ def admin_add_staff():
             engineer = Engineer(EmployeeID=form.EmployeeID.data, password = hashed_password, salary = form.salary.data)
             db.session.add(engineer);
             db.session.commit();
+            pb.new_contact(form.EmployeeID.data, form.email.data)
         else:
             manager = Manager(EmployeeID=form.EmployeeID.data, password = hashed_password, salary = form.salary.data)
             db.session.add(manager);
@@ -373,6 +388,36 @@ def admin_update_user():
         return redirect(url_for('admin_view_users', form = form, user = request.args['user']))
     return render_template('admin_update_user.html', form = form, username=request.args['username'] , user = request.args['user'])
 
+
+@app.route("/engineer_main_page", methods=['GET', 'POST'])
+def engineer_main_page():
+    cars = Car.query.filter(and_(Car.isArhieved==False, Car.maintenance == 2))
+    return render_template('engineer_main.html', cars=cars, user = request.args['user'])
+
+@app.route("/engineer_view_completed_jobs", methods=['GET', 'POST'])
+def engineer_view_completed_jobs():
+    issues = Issue.query.filter(Issue.solvedBy==request.args['user'])
+    return render_template('engineer_view_completed_jobs.html', issues = issues, user = request.args['user'])
+
+@app.route("/engineer_show_location", methods=['GET', 'POST'])
+def engineer_show_location():
+    #endpoint = 'https://www.googleapis.com/geolocation/v1/geolocate?'
+    #api_key = 'AIzaSyD3rq-QIZhzsuTZ65qAgxXJIzmmNyuH1so'
+    client = googlemaps.Client(key='AIzaSyCmT9gDmMEKmFBl_x3Rb01hvKpdhD1h-lA')
+    results = client.geolocate()
+    new_results = client.reverse_geocode((results['location']['lat'],results['location']['lng']))
+    print(new_results[0]['place_id'])
+    location =new_results[0]['place_id']
+    re = client.place(location)
+    return render_template('car_location.html', pos=results , user = request.args['user'])
+
+    #[0]['formatted_address']#ChIJC3GC8g481moRyNQkqYNxrU8
+
+
+@app.route("/manager_main_page", methods=['GET', 'POST'])
+def manager_main_page():
+    
+    return render_template('manager_main_page.html')
 
 if (__name__) == '__main__':
     app.run(debug=True)

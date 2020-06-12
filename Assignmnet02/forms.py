@@ -105,6 +105,8 @@ class AdminRegistrationForm(FlaskForm):
     confirm_password = PasswordField('confirm Password',
                                      validators=[DataRequired(), EqualTo('password')])
     salary = DecimalField('salary', validators=[DataRequired()])
+    email = StringField('email',
+                        validators=[DataRequired()])
     submit = SubmitField('sign Up')
 
     def validate_username(self, username):

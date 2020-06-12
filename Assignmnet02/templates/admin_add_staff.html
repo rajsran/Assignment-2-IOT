@@ -4,7 +4,7 @@
 
 
     <div class="content-section">
-        <form method="POST" action="">
+        <form id="myform" method="POST" action="">
             {{ form.hidden_tag() }}
             <fieldset class="form-group">
                 <legend class="border-bottom mb-4">Register Staff</legend>
@@ -68,7 +68,7 @@
                 <div class="form-group">
                     {{ form.staffType.label(class="form-control-label") }}
                     {% if form.staffType.errors %}
-                        <select class="form-control" id="staffType" name="staffType">
+                        <select class="form-control" id="staffType" name="staffType" onchange="decide(this.value)">
                           <option>Admin</option>
                           <option>Manager</option>
                           <option>Engineer</option>
@@ -79,17 +79,36 @@
                             {% endfor %}
                         </div>
                     {% else %}
-                        <select class="form-control" id="staffType" name="staffType">
-                          <option>Admin</option>
-                          <option>Manager</option>
-                          <option>Engineer</option>
+                        <select class="form-control" id="staffType" name="staffType" onchange="decide(this.value)">
+                          <option value="Admin">Admin</option>
+                          <option value="Manager">Manager</option>
+                          <option value="Engineer">Engineer</option>
                         </select>
                     {% endif %}
                 </div>
+                
+                
+                <div class="form-group">
+                    {{ form.email.label(class="form-control-label") }}
+                    {% if form.email.errors %}
+                        {{ form.email(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.email.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.email(class="form-control form-control-lg") }}
+                    {% endif %}
+                </div>
+                
+                
             </fieldset>
             <div class="form-group">
                 {{ form.submit(class="btn btn-outline-info") }}
             </div>
         </form>
+        
+    
     </div>
 {% endblock content %}

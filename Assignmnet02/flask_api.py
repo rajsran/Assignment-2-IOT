@@ -94,6 +94,7 @@ class Admin(db.Model):
     EmployeeID = db.Column(db.String(20), primary_key = True)
     password = db.Column(db.String(50), nullable=False)
     salary = db.Column(db.Float)
+    email = db.Column(db.String(20))
 
     def __init__(self, EmployeeID, password, salary):
         self.EmployeeID = EmployeeID
@@ -107,7 +108,7 @@ class AdminSchema(ma.Schema):
     
     class Meta:
         # Fields to expose.
-        fields = ("EmployeeID", "password", "salary")
+        fields = ("EmployeeID", "password", "salary", "email")
 
 adminSchema = AdminSchema()
 adminsSchema = AdminSchema(many = True)
@@ -125,6 +126,7 @@ class Engineer(db.Model):
     EmployeeID = db.Column(db.String(20), primary_key = True)
     password = db.Column(db.String(50), nullable=False)
     salary = db.Column(db.Float)
+    email = db.Column(db.String(20))
 
     def __init__(self, EmployeeID, password, salary):
         self.EmployeeID = EmployeeID
@@ -138,7 +140,7 @@ class EngineerSchema(ma.Schema):
     
     class Meta:
         # Fields to expose.
-        fields = ("EmployeeID", "password", "salary")
+        fields = ("EmployeeID", "password", "salary", "email")
 
 engineerSchema = EngineerSchema()
 engineersSchema = EngineerSchema(many = True)
@@ -156,6 +158,7 @@ class Manager(db.Model):
     EmployeeID = db.Column(db.String(20), primary_key = True)
     password = db.Column(db.String(50), nullable=False)
     salary = db.Column(db.Float)
+    email = db.Column(db.String(20))
 
     def __init__(self, EmployeeID, password, salary):
         self.EmployeeID = EmployeeID
@@ -169,7 +172,7 @@ class ManagerSchema(ma.Schema):
     
     class Meta:
         # Fields to expose.
-        fields = ("EmployeeID", "password", "salary")
+        fields = ("EmployeeID", "password", "salary", "email")
 
 managerSchema = ManagerSchema()
 managersSchema = ManagerSchema(many = True)

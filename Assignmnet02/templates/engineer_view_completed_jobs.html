@@ -1,0 +1,23 @@
+{% extends "engineer_navbar.html" %}
+{% block content %}
+    {% if issues.length==0 %}
+    <h2> No jobs completed yet </h2>
+    {% else %}
+    {% for issue in issues %}
+        <article class="media content-section">
+          <div class="media-body" id="keep-left">
+            <h2 class="article-title" ><a href="{{ url_for('capi.getCarByName', carnumber = car.carnumber, user = user) }}">{{ car.model }}</a></h2>
+            <div class="article-metadata">
+              <div class="mr-2" >CAR NUMBER:{{ issue.carnumber }}</div>
+              <div class="mr-2">REPORTED ON: {{ issue.reportedOn }}</div>
+            </div>
+            <p class="article-content">CLOSED ON: {{ issue.closedOn }}</p>
+            <div class="article-content">REPORTED BY: {{ issue.reportedBy }}</div>
+          </div>
+          <div id="keep-right">
+          <img class="article-img" src="{{ car.photo }}" style="width:300px;height:300px;">
+          </div>
+        </article>
+    {% endfor %}
+    {% endif %}
+{% endblock content %}
