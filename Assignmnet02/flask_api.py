@@ -96,10 +96,11 @@ class Admin(db.Model):
     salary = db.Column(db.Float)
     email = db.Column(db.String(20))
 
-    def __init__(self, EmployeeID, password, salary):
+    def __init__(self, EmployeeID, password, salary, email):
         self.EmployeeID = EmployeeID
         self.password = password
         self.salary = salary
+        self.email = email
 
 class AdminSchema(ma.Schema):
     # Reference: https://github.com/marshmallow-code/marshmallow/issues/377#issuecomment-261628415
@@ -128,10 +129,11 @@ class Engineer(db.Model):
     salary = db.Column(db.Float)
     email = db.Column(db.String(20))
 
-    def __init__(self, EmployeeID, password, salary):
+    def __init__(self, EmployeeID, password, salary, email):
         self.EmployeeID = EmployeeID
         self.password = password
         self.salary = salary
+        self.email = email
 
 class EngineerSchema(ma.Schema):
     # Reference: https://github.com/marshmallow-code/marshmallow/issues/377#issuecomment-261628415
@@ -160,10 +162,11 @@ class Manager(db.Model):
     salary = db.Column(db.Float)
     email = db.Column(db.String(20))
 
-    def __init__(self, EmployeeID, password, salary):
+    def __init__(self, EmployeeID, password, salary, email):
         self.EmployeeID = EmployeeID
         self.password = password
         self.salary = salary
+        self.email = email
 
 class ManagerSchema(ma.Schema):
     # Reference: https://github.com/marshmallow-code/marshmallow/issues/377#issuecomment-261628415

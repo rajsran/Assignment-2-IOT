@@ -65,7 +65,7 @@ def home():
             form = FilterForm()
             return redirect(url_for('main_page', form = form, user = user.username))
     
-        elif admin and (admin.password == form.password.data):
+        elif admin and bcrypt.check_password_hash(admin.password, form.password.data):
             
             form = FilterForm()
             return redirect(url_for('admin_main_page', form = form, user = admin.EmployeeID))
@@ -352,16 +352,15 @@ def admin_add_staff():
         flash('Account created!', 'success')
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
         if (form.staffType.data=='Admin'):
-            admin = Admin(EmployeeID=form.EmployeeID.data, password = hashed_password, salary = form.salary.data)
+            admin = Admin(EmployeeID=form.EmployeeID.data, password = hashed_password, salary = form.salary.data, email= form.email.data)
             db.session.add(admin);
             db.session.commit();
         elif (form.staffType.data=='Engineer'):
-            engineer = Engineer(EmployeeID=form.EmployeeID.data, password = hashed_password, salary = form.salary.data)
+            engineer = Engineer(EmployeeID=form.EmployeeID.data, password = hashed_password, salary = form.salary.data, email= form.email.data)
             db.session.add(engineer);
             db.session.commit();
-            pb.new_contact(form.EmployeeID.data, form.email.data)
         else:
-            manager = Manager(EmployeeID=form.EmployeeID.data, password = hashed_password, salary = form.salary.data)
+            manager = Manager(EmployeeID=form.EmployeeID.data, password = hashed_password, salary = form.salary.data, email= form.email.data)
             db.session.add(manager);
             db.session.commit();
         return redirect(url_for('admin_main_page', form = form, user = request.args['user']))
