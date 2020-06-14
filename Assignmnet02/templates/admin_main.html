@@ -28,12 +28,19 @@
                 </div>
                 <br>
                 <br>
+                
+                <div class="form-group">
+                    {{ form.vsearch.label(class_="form-control-label col-form-label")  }}:
+                    {{form.vsearch(class = "form-control form-control-md")}}
+                </div>
+                
                 </fieldset>
             
             <div class="form-group">
                 {{ form.submit(class_="btn btn-outline-info") }}
             </div>
         </form>
+        
                 
     {% for car in cars %}
         <article class="media content-section">

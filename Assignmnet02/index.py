@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import or_, and_
 from flask_marshmallow import Marshmallow
 import os, requests, json, sqlite3
-from forms import RegistrationForm, AdminRegistrationForm, AdminUpdateForm, LoginForm, BookingForm, FilterForm, SearchForm, AdminAddCarForm
+from forms import RegistrationForm, VoiceForm, AdminRegistrationForm, AdminUpdateForm, LoginForm, BookingForm, FilterForm, SearchForm, AdminAddCarForm
 from flask_bcrypt import Bcrypt
 #from users import User
 from flask_api import api, db, User, Admin, Engineer, Manager
@@ -27,6 +27,8 @@ from gcloud import storage
 from google.cloud import storage
 
 from pushbullet import Pushbullet
+
+import speech_recognition as sr 
 
 pb = Pushbullet('o.V6LChFjuMwBnctjCgBDCPQaSm67dJxTc')
 
@@ -167,6 +169,7 @@ def main_page():
                 cars4 = Car.query.filter(Car.body_type=="sedan")
             else:
                 cars4 = Car.query.filter(Car.body_type=="hatch")
+        
          
         print(list(set(cars1) & set(cars2) & set(cars3) & set(cars4)))
         cars = list(set(cars1) & set(cars2) & set(cars3) & set(cars4))
@@ -174,7 +177,7 @@ def main_page():
             flash('No results found, please re-edit filters!', 'danger')
             cars = Car.query.all()
         return render_template('main.html', form = form, cars=cars, user = request.args['user'])
-    return render_template('main.html', form = form, cars=cars, user = request.args['user'])
+    return render_template('main.html',  form = form, cars=cars, user = request.args['user'])
 
 @app.route("/cancelBooking", methods=['GET', 'POST'])
 def cancelBooking():
@@ -290,8 +293,29 @@ def admin_main_page():
             else:
                 cars4 = Car.query.filter(and_(Car.body_type=="hatch", Car.isArhieved==False))
          
-        print(list(set(cars1) & set(cars2) & set(cars3) & set(cars4)))
-        cars = list(set(cars1) & set(cars2) & set(cars3) & set(cars4))
+                
+        if (form.vsearch.data==None or form.vsearch.data=='' or form.vsearch.data==[]):
+            cars5 = Car.query.all()
+        else:
+            AUDIO_FILE = (form.vsearch.data)
+            r = sr.Recognizer() 
+            with sr.AudioFile(AUDIO_FILE) as source: 
+                audio = r.record(source) 
+
+            try: 
+                print("The audio file contains: " + r.recognize_google(audio)) 
+                voice = r.recognize_google(audio)
+            except sr.UnknownValueError: 
+                print("Google Speech Recognition could not understand audio") 
+
+            except sr.RequestError as e: 
+                print("Could not request results from Google Speech Recognition service; {0}".format(e)) 
+
+
+            cars5 = Car.query.filter(or_(Car.carnumber==voice, Car.model==voice))
+            
+        print(list(set(cars1) & set(cars2) & set(cars3) & set(cars4) & set(cars5)))
+        cars = list(set(cars1) & set(cars2) & set(cars3) & set(cars4) & set(cars5))
         if (cars is None or cars==None or len(cars)==0):
             flash('No results found, please re-edit filters!', 'danger')
             cars = Car.query.filter(Car.isArhieved==False)
@@ -409,10 +433,13 @@ def engineer_show_location():
     client = googlemaps.Client(key='AIzaSyCmT9gDmMEKmFBl_x3Rb01hvKpdhD1h-lA')
     results = client.geolocate()
     new_results = client.reverse_geocode((results['location']['lat'],results['location']['lng']))
-    print(new_results[0]['place_id'])
+    print(results['location']['lat'])
+    print(results['location']['lng'])
     location =new_results[0]['place_id']
     re = client.place(location)
-    return render_template('car_location.html', pos=results , user = request.args['user'])
+    place = "https://www.google.com/maps/embed/v1/place?q=place_id:"+new_results[0]['place_id']+"&key=AIzaSyCmT9gDmMEKmFBl_x3Rb01hvKpdhD1h-lA"
+    #place = "https://www.google.com/maps/search/?api=AIzaSyCmT9gDmMEKmFBl_x3Rb01hvKpdhD1h-lA&query="+str(results['location']['lat'])+","+str(results['location']['lng'])
+    return render_template('car_location.html',carnumber = request.args['carnumber'], pos=results , place=place, user = request.args['user'])
 
     #[0]['formatted_address']#ChIJC3GC8g481moRyNQkqYNxrU8
 

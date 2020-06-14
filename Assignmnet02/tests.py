@@ -37,11 +37,11 @@ class TestDatabaseUtils(unittest.TestCase):
 
 
     def test_login_pass(self):
-        res = self.login("raj19ptd@gmail.com", "123")
+        res = self.login("A001", "123")
         self.assertTrue(res)
     
     def test_login_fail(self):
-        res = self.login("raj19ptd@gmail.com", "1234")
+        res = self.login("A001", "1234")
         self.assertFalse(res)
         
     

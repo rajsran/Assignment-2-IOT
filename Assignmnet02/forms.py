@@ -9,7 +9,12 @@ class FilterForm(FlaskForm):
     available = RadioField('available', choices=[('available cars only','available cars only'),('all cars','all cars')])
     cost_below = DecimalField('cost_below')
     body = RadioField('body', choices=[('SUV','SUV'),('sedan','sedan'),('hatch back','hatch back')])
+    vsearch = StringField('voice search')
     submit = SubmitField('Apply Filters')
+    
+class VoiceForm(FlaskForm):
+    search = StringField('File path containing voice message')
+    submit = SubmitField('Search by voice')
     
 class SearchForm(FlaskForm):
     search = StringField('search')
