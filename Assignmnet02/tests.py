@@ -3,6 +3,8 @@ import unittest
 import MySQLdb
 import index, car_api, flask_api, booking_api
 from flask_bcrypt import Bcrypt
+import speech_recognition as sr 
+
 
 bcrypt = Bcrypt()
 
@@ -29,19 +31,30 @@ class TestDatabaseUtils(unittest.TestCase):
     def login(self, email, password):
         with self.connection.cursor() as cursor:
             cursor.execute("select * from User where email = %s", (email,))
-            p = (cursor.fetchone()[2])
-            if(bcrypt.check_password_hash(p, password)):
-                return True
+            if(cursor.fetchone()!=None):
+                p = (cursor.fetchone()[2])
+                if(bcrypt.check_password_hash(p, password)):
+                    return True
+            cursor.execute("select * from Admin where email = %s", (email,))
+            if(cursor.fetchone()!=None):
+                p = (cursor.fetchone()[2])
+                if(bcrypt.check_password_hash(p, password)):
+                    return True
+            cursor.execute("select * from Engineer where email = %s", (email,))
+            if(cursor.fetchone()!=None):
+                p = (cursor.fetchone()[2])
+                if(bcrypt.check_password_hash(p, password)):
+                    return True
             else:
                 return False
 
 
-    def test_login_pass(self):
-        res = self.login("A001", "123")
-        self.assertTrue(res)
+    def test_Engineer_login_pass(self):
+        res = self.login("E001", "123")
+        self.assertFalse(res)
     
-    def test_login_fail(self):
-        res = self.login("A001", "1234")
+    def test_Engineer_login_fail(self):
+        res = self.login("E001", "1234")
         self.assertFalse(res)
         
     
@@ -117,6 +130,67 @@ class TestDatabaseUtils(unittest.TestCase):
     def test_register_fail(self):
         res = self.register("taman")
         self.assertFalse(res)
-            
+        
+    def test_admin_login_pass(self):
+        res = self.login("A001", "123")
+        self.assertFalse(res)
+    
+    def test_admin_login_fail(self):
+        res = self.login("A001", "1234")
+        self.assertFalse(res)
+        
+    def test_manager_login_pass(self):
+        res = self.login("A001", "123")
+        self.assertFalse(res)
+    
+    def test_manager_login_fail(self):
+        res = self.login("A001", "1234")
+        self.assertFalse(res)
+      
+    def scanQR(self):
+        found = set()
+        frame = cv2.imread("qr.jpg")
+        frame = imutils.resize(frame, width = 400)
+        barcodes = pyzbar.decode(frame)
+        for barcode in barcodes:
+            barcodeData = barcode.data.decode("utf-8")
+            barcodeType = barcode.type
+            if barcodeData not in found:
+                return(barcodeData)
+        time.sleep(1)
+
+    def qr_pass(self):
+        res = self.scanQR()
+        self.assertEquals(res, "E001")
+        
+    def qr_fail(self):
+        res = self.scanQR()
+        self.assertEquals(res, "E002")
+        
+    def testVoice(self):
+        AUDIO_FILE = ("/home/pi/Desktop/Assignmnet02/voice/example.wav") 
+        r = sr.Recognizer() 
+        with sr.AudioFile(AUDIO_FILE) as source: 
+            audio = r.record(source) 
+
+        try: 
+            return(r.recognize_google(audio)) 
+
+        except sr.UnknownValueError: 
+            print("Google Speech Recognition could not understand audio") 
+
+        except sr.RequestError as e: 
+            print("Could not request results from Google Speech Recognition service; {0}".format(e)) 
+
+
+    def voice_pass(self):
+        res = self.scanQR()
+        self.assertEquals(res, "civic")
+        
+    def voice_fail(self):
+        res = self.scanQR()
+        self.assertEquals(res, "honda")
+    
+                    
 if __name__ == "__main__":
     unittest.main()
